@@ -1,5 +1,5 @@
 /* NestJS */
-import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException, BadRequestException } from '@nestjs/common';
 
 /* TypeORM + PG */
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,17 +10,21 @@ import { PostgresError } from 'pg-error-enum';
 import { Users } from './users.entity';
 
 /* DTOs */
-import { CreateUserDTO, UpdateUserDTO } from './users.dto';
+import { CreateUserDTO, UpdateUserDTO, UserLoginDTO } from './users.dto';
 
 /* Constants */
 import * as MessagesConstants from '../constants/messages.constants';
+
+/* Services */
+// import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
 
     constructor(
         @InjectRepository(Users)
-        private userRepository: Repository<Users>
+        private userRepository: Repository<Users>,
+
     ) { }
 
     async findUserByEmail(email: string): Promise<any> {
@@ -51,7 +55,21 @@ export class UsersService {
             try {
                 const newUser = this.userRepository.create(user);
                 await this.userRepository.save(newUser);
-                return new HttpException(MessagesConstants.USER_ADDED_SUCCESS, HttpStatus.ACCEPTED);
+
+                const loginDTO: UserLoginDTO = {
+                    email: newUser.email,
+                    password: user.password,
+                    remember: false
+                };
+
+                //const token = await this.authService.login(loginDTO, true);
+
+                return {
+                    message: MessagesConstants.USER_ADDED_SUCCESS,
+                    statusCode: HttpStatus.CREATED,
+                    //token
+                };
+
             } catch (error) {
                 if (error.code === PostgresError.UNIQUE_VIOLATION) {
                     throw new HttpException(MessagesConstants.DUPLICATE_DISPLAY_NAME, HttpStatus.CONFLICT);
@@ -61,6 +79,8 @@ export class UsersService {
             }
         }
     }
+
+
     async update(user: UpdateUserDTO, email: string): Promise<any> {
         const member = await this.findUserByEmail(email);
 

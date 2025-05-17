@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Post, Render, Res, Param, Patch, Put, HttpCode, UseGuards, Request } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Response } from 'express';
 
@@ -20,6 +20,7 @@ export class UsersController {
 
 
     @ApiOperation({ summary: 'Create User' })
+    @ApiConsumes('application/x-www-form-urlencoded')
     @Post('/create')
     async create(@Body() user: CreateUserDTO): Promise<any> {
         return this.usersService.createUser(user);

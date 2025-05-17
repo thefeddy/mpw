@@ -4,7 +4,8 @@ export class CreateUserDTO {
     readonly email: string;
     @ApiProperty()
     readonly password: string;
-
+    @ApiProperty()
+    readonly display_name: string;
 }
 
 export class UpdateUserDTO {

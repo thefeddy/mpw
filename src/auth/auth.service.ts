@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import * as crypto from 'crypto';
@@ -19,17 +19,39 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async login(credentials: UserLoginDTO): Promise<{ access_token: string }> {
+    async validateToken(token: string) {
+        try {
+            const decoded = await this.jwtService.verifyAsync(token);
+            return decoded;
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token');
+        }
+    }
+
+    async login(credentials: UserLoginDTO, login: boolean): Promise<{ access_token: string }> {
+        login = login || false;
+        if (!credentials.email) {
+            throw new BadRequestException('Email is required');
+        }
+
         // Check if the user exists
         const foundUser = await this.usersService.findUserByEmail(credentials.email);
+
+        console.log(credentials)
 
         if (!foundUser) {
             throw new UnauthorizedException(MessagesConstants.USER_NOT_FOUND);
         }
 
         // Verify the password
-        const hash = await this.hashPassword(credentials.password);
-        const isPasswordValid = await this.comparePassword(credentials.password, hash);
+        let isPasswordValid: boolean;
+        if (!login) {
+            const hash = await this.hashPassword(credentials.password);
+            isPasswordValid = await this.comparePassword(credentials.password, hash);
+        } else {
+            isPasswordValid = true;
+        }
+
 
         if (!isPasswordValid) {
             throw new UnauthorizedException(MessagesConstants.INVALID_PASSWORD);
@@ -59,5 +81,4 @@ export class AuthService {
         const hash = crypto.pbkdf2Sync(password, process.env.SALT, 10000, 64, 'sha512').toString('hex');
         return hash;
     }
-
 }
