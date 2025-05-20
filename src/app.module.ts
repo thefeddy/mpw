@@ -24,6 +24,7 @@ import { Movies } from './movies/movies.entity';
 /* Redis */
 import * as redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CastModule } from './cast/cast.module';
 
 
 /* Routes */
@@ -55,6 +56,10 @@ const routes: Routes = [
                 path: '/search/',
                 module: SearchModule,
             },
+            {
+                path: '/cast/',
+                module: CastModule,
+            },
         ]
     }
 ];
@@ -67,6 +72,7 @@ const routes: Routes = [
         MoviesModule,
         UsersModule,
         SearchModule,
+        CastModule,
         ConfigModule.forRoot({
             isGlobal: true,
             envFilePath: '.env',

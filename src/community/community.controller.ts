@@ -70,14 +70,20 @@ export class CommunityController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
     @Get(':id/')
     async getCommunity(@Param('id') id: number, @Req() req: any, @Res() res: Response): Promise<any> {
-
-
         let message = await this.communityService.findCommunity(id);
+        console.log(message)
 
-        const isMember = message.members.find(member => member.id === req?.user.id);
-        let isOwner = message.owner.id === req?.user.id;
-        message.isMember = isMember ? true : false;
-        message.isOwner = isOwner;
+
+        if (req?.user) {
+            const isMember = message.members.find(member => member.id === req?.user.id);
+            const isOwner = message.owner.id === req?.user.id;
+            message.isMember = isMember ? true : false;
+            message.isOwner = isOwner;
+        } else {
+            return res.status(403).json();
+        }
+
+
         for (const movie of message.movies) {
             const cacheKey = `movie-${movie.movie_id}`;
             let data = await this.cacheService.get<{ name: string }>(cacheKey);
