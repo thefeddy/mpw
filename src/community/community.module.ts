@@ -9,17 +9,17 @@ import { Community } from './community.entity';
 import { CommunityService } from './community.service';
 import { UsersService } from 'src/users/users.service';
 import { Users } from 'src/users/users.entity';
-import { MovieService } from 'src/movies/movies.service';
-import { Movies } from 'src/movies/movies.entity';
+import { MediaService } from 'src/media/media.service';
+import { Media } from 'src/media/media.entity';
 
 @Module({
     imports: [
         HttpModule,
         TypeOrmModule.forFeature([Community]),
         TypeOrmModule.forFeature([Users]),
-        TypeOrmModule.forFeature([Movies]),
+        TypeOrmModule.forFeature([Media]),
     ],
-    providers: [CommunityService, UsersService, MovieService],
+    providers: [CommunityService, UsersService, MediaService],
     controllers: [CommunityController],
 })
 

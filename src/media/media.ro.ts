@@ -1,8 +1,9 @@
-export class MoviesRO {
+export class MedaiRO {
     id: number;
-    movie_id: string;
+    media_id: string;
     watched_on: Date;
     added: Date;
     rating: number;
     background: string;
+    type: string;
 }

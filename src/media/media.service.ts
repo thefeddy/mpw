@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { map, catchError } from 'rxjs/operators';
 
-import { Movies } from './movies.entity';
-import { CreateMovieDTO, MoviesDTO } from './movies.dto';
+import { Media } from './media.entity';
+import { CreateMovieDTO, MoviesDTO } from './media.dto';
 
 import { Community } from 'src/community/community.entity';
 import { CommunityService } from 'src/community/community.service';
@@ -14,10 +14,10 @@ import * as MessagesConstants from '../constants/messages.constants';
 
 
 @Injectable()
-export class MovieService {
+export class MediaService {
     constructor(
-        @InjectRepository(Movies)
-        private movieRepository: Repository<Movies>,
+        @InjectRepository(Media)
+        private movieRepository: Repository<Media>,
 
         private communtiyService: CommunityService
     ) { }
@@ -30,7 +30,7 @@ export class MovieService {
         return count;
     }
 
-    async findAllByPage(page: number): Promise<Movies[]> {
+    async findAllByPage(page: number): Promise<Media[]> {
         return await this.movieRepository.find({
             where: {
                 watched_on: null
@@ -41,7 +41,7 @@ export class MovieService {
     }
 
 
-    async findAllByUnWatched(): Promise<Movies[]> {
+    async findAllByUnWatched(): Promise<Media[]> {
         return await this.movieRepository.find({
             where: {
                 watched_on: null
@@ -49,16 +49,17 @@ export class MovieService {
         });
     }
 
-    async findById(movie_id: string): Promise<Movies> {
+    async findById(media_id: string): Promise<Media> {
         return this.movieRepository.findOne({
-            where: { movie_id },
+            where: { media_id },
         });
     }
 
-    async add(movie: any): Promise<any> {
-        const { movie_id, community, user } = movie;
+    async add(media: any): Promise<any> {
+        const { media_id, community, user } = media;
+        console.log(media_id, community)
 
-        if (!movie_id || !community) {
+        if (!media_id || !community) {
             throw new HttpException(MessagesConstants.COMMUNITY_MISSING_IDS_MESSAGE, HttpStatus.NOT_ACCEPTABLE);
         }
 
@@ -74,17 +75,18 @@ export class MovieService {
             throw new HttpException(MessagesConstants.COMMUNITY_USER_NOT_IN_COMMUNITY_MESSAGE, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        const isMovieAlreadyAdded = foundCommunity.movies?.some((m) => m.movie_id === movie_id);
+        const isMovieAlreadyAdded = foundCommunity.media?.some((m) => m.movie_id === media_id);
 
         if (isMovieAlreadyAdded) {
             throw new HttpException(MessagesConstants.COMMUNITY_MOVIE_ALREADY_ADDED_MESSAGE, HttpStatus.FOUND);
         }
 
         try {
-            const savedMovie = this.movieRepository.create({ ...movie });
-            foundCommunity.movies = foundCommunity.movies || [];
-            foundCommunity.movies.push(savedMovie);
-
+            const savedMovie = this.movieRepository.create({ ...media });
+            console.log(savedMovie);
+            foundCommunity.media = foundCommunity.media || [];
+            foundCommunity.media.push(savedMovie);
+            console.log(foundCommunity)
             await this.communtiyService.update(foundCommunity);
 
             return { message: MessagesConstants.COMMUNITY_MOVIE_ADDED, status: HttpStatus.ACCEPTED };
@@ -102,8 +104,7 @@ export class MovieService {
         await this.movieRepository.delete(id);
     }
 
-    async watched(movie: MoviesDTO): Promise<Movies> {
-
+    async watched(movie: MoviesDTO): Promise<Media> {
         return await this.movieRepository.save({ ...movie, id: Number(movie.id), watched_on: new Date() });
     }
 }

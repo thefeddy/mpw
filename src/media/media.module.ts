@@ -3,25 +3,25 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { HttpModule } from '@nestjs/axios'
 
-import { MoviesController } from './movies.controller';
+import { MediaController } from './media.controller';
 
-import { MovieService } from './movies.service';
+import { MediaService } from './media.service';
 import { CommunityService } from 'src/community/community.service';
 import { UsersService } from 'src/users/users.service';
 
-import { Movies } from './movies.entity';
+import { Media } from './media.entity';
 import { Community } from 'src/community/community.entity';
 import { Users } from 'src/users/users.entity';
 
 @Module({
     imports: [
         HttpModule,
-        TypeOrmModule.forFeature([Movies]),
+        TypeOrmModule.forFeature([Media]),
         TypeOrmModule.forFeature([Community]),
         TypeOrmModule.forFeature([Users])
     ],
-    providers: [MovieService, CommunityService, UsersService],
-    controllers: [MoviesController],
+    providers: [MediaService, CommunityService, UsersService],
+    controllers: [MediaController],
 })
 
-export class MoviesModule { }
+export class MediaModule { }

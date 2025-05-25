@@ -19,7 +19,7 @@ import { randomBytes } from 'crypto';
 import { CommunityRO } from './community.ro';
 
 import { Users } from 'src/users/users.entity';
-import { Movies } from 'src/movies/movies.entity';
+import { Media } from 'src/media/media.entity';
 
 
 @Entity()
@@ -50,7 +50,6 @@ export class Community {
     @Column({ nullable: true })
     discord_webhook: string;
 
-
     @Column({ nullable: true })
     discord: string;
 
@@ -60,11 +59,11 @@ export class Community {
     @Column({ nullable: true })
     banner: string;
 
-    @ManyToMany(() => Movies, movies => movies.communities, { cascade: true })
+    @ManyToMany(() => Media, movies => movies.communities, { cascade: true })
     @JoinTable({
-        name: 'community_movies',
+        name: 'community_media',
     })
-    movies: Array<Object>;
+    media: Array<Object>;
 
     @ManyToMany(() => Users, users => users.communities, { cascade: true })
     @JoinTable({

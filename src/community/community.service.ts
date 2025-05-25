@@ -25,18 +25,17 @@ export class CommunityService {
     ) { }
 
     async findCommunity(id: number): Promise<any> {
-
         return await this.communityRepository.findOneOrFail({
             where: { id },
-            relations: ['owner', 'members', 'movies']
+            relations: ['owner', 'members', 'media']
         });
     }
 
 
     async findCommunityUnWatchedVideos(id: number): Promise<any> {
         const query = await this.communityRepository.createQueryBuilder('community')
-            .leftJoinAndSelect('community.movies', 'movies')
-            .where('movies.watched_on IS NULL')
+            .leftJoinAndSelect('community.media', 'media')
+            .where('media.watched_on IS NULL')
             .andWhere('community.id = :id', { id })
             .getOne();
 
@@ -55,8 +54,9 @@ export class CommunityService {
     }
 
     async update(community: any): Promise<any> {
+        console.log('updating');
         try {
-
+            await this.communityRepository.save(community)
         } catch (error) {
             if (!(error instanceof HttpException)) {
                 error = new HttpException(MessagesConstants.UNEXPECTED_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);

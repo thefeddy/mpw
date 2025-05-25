@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Res, Param, Patch, UseGuards, Req, Delete, Inject } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Res, Param, Patch, UseGuards, Req, Delete, Inject, Request } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { firstValueFrom } from 'rxjs';
@@ -10,7 +10,7 @@ import { CreateCommunityDTO, JoinCommunityDTO } from './community.dto';
 
 /* Services */
 import { CommunityService } from './community.service';
-import { MovieService } from '../movies/movies.service';
+import { MediaService } from '../media/media.service';
 import { HttpService } from '@nestjs/axios';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -24,7 +24,7 @@ import { AllowAnyGuard } from '../auth/guards/allow-any.guard';
 export class CommunityController {
     constructor(
         private communityService: CommunityService,
-        private movieService: MovieService,
+        private mediaService: MediaService,
         private http: HttpService,
         @Inject(CACHE_MANAGER) private cacheService: Cache,
     ) { }
@@ -71,25 +71,20 @@ export class CommunityController {
     @Get(':id/')
     async getCommunity(@Param('id') id: number, @Req() req: any, @Res() res: Response): Promise<any> {
         let message = await this.communityService.findCommunity(id);
-        console.log(message)
 
+        if (!req?.user) return res.status(403).json();
 
-        if (req?.user) {
-            const isMember = message.members.find(member => member.id === req?.user.id);
-            const isOwner = message.owner.id === req?.user.id;
-            message.isMember = isMember ? true : false;
-            message.isOwner = isOwner;
-        } else {
-            return res.status(403).json();
-        }
+        const isMember = message.members.find(member => member.id === req?.user.id);
+        const isOwner = message.owner.id === req?.user.id;
+        message.isMember = isMember ? true : false;
+        message.isOwner = isOwner;
 
-
-        for (const movie of message.movies) {
-            const cacheKey = `movie-${movie.movie_id}`;
+        for (const media of message.media) {
+            const cacheKey = `${media.type}-${media.movie_id}`;
             let data = await this.cacheService.get<{ name: string }>(cacheKey);
             if (!data) {
                 const { data: fetchedData } = await firstValueFrom(
-                    this.http.get(`${process.env.TMDB_BASE_URL}movie/${movie.movie_id}?api_key=${process.env.TMDB_API_KEY}&language=en-US&append_to_response=videos,images,credits,trailers`)
+                    this.http.get(`${process.env.TMDB_BASE_URL}${media.type}/${media.media_id}?api_key=${process.env.TMDB_API_KEY}&language=en-US&append_to_response=videos,images,credits,trailers`)
                 );
                 await this.cacheService.set(cacheKey, fetchedData);
 
@@ -97,7 +92,7 @@ export class CommunityController {
 
             }
 
-            movie.details = data;
+            media.details = data;
         }
         res.status(200).json(message);
     }
@@ -169,6 +164,28 @@ export class CommunityController {
 
 
         res.status(foundMovies.status).json(foundMovies);
+    }
+
+    @UseGuards(AuthGuard)
+    @Patch('/:community/add/:type/:media_id/')
+    @ApiResponse({ status: 201, description: 'This movie has been added to your list' })
+    @ApiResponse({ status: 302, description: 'This movie is already in your list' })
+    @ApiResponse({ status: 406, description: 'Not Acceptable' })
+    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    async add(
+        @Res() res: Response,
+        @Request() req: any
+    ): Promise<any> {
+
+        let data = {
+            media_id: req?.params.media_id,
+            community: req?.params.community,
+            user: req?.user.id,
+            type: req?.params.type
+        }
+        let message = await this.mediaService.add(data);
+
+        res.status(message.status).json(message);
     }
 
 }

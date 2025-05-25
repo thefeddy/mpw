@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 /* Modules */
 import { HomeModule } from './home/home.module';
 import { AuthModule } from './auth/auth.module';
-import { MoviesModule } from './movies/movies.module';
+import { MediaModule } from './media/media.module';
 import { CommunityModule } from './community/community.module';
 import { UsersModule } from './users/users.module';
 import { SearchModule } from './search/search.module';
@@ -19,7 +19,7 @@ import { SearchModule } from './search/search.module';
 /* Entities */
 import { Users } from './users/users.entity';
 import { Community } from './community/community.entity';
-import { Movies } from './movies/movies.entity';
+import { Media } from './media/media.entity';
 
 /* Redis */
 import * as redisStore from 'cache-manager-redis-store';
@@ -45,8 +45,8 @@ const routes: Routes = [
                 module: CommunityModule,
             },
             {
-                path: '/movies/',
-                module: MoviesModule,
+                path: '/media/',
+                module: MediaModule,
             },
             {
                 path: '/user/',
@@ -69,7 +69,7 @@ const routes: Routes = [
         HomeModule,
         AuthModule,
         CommunityModule,
-        MoviesModule,
+        MediaModule,
         UsersModule,
         SearchModule,
         CastModule,
@@ -85,7 +85,7 @@ const routes: Routes = [
                 username: process.env.TYPEORM_USERNAME,
                 password: process.env.TYPEORM_PASSWORD,
                 database: process.env.TYPEORM_DATABASE,
-                entities: [Users, Community, Movies],
+                entities: [Users, Community, Media],
                 synchronize: true,
             }),
         }),

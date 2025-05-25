@@ -42,8 +42,19 @@ export class UsersController {
 
     @UseGuards(AuthGuard)
     @ApiOperation({ summary: 'List all communities that supplied user is in.' })
-    @Get('/profile/:id/')
+    @Get('/profile/')
     async profileByID(
+        @Res() res: Response,
+        @Request() req: any
+    ): Promise<any> {
+        const foundUser = await this.usersService.profile(req?.user.id);
+        res.status(HttpStatus.OK).json(foundUser);
+    }
+
+    @UseGuards(AuthGuard)
+    @ApiOperation({ summary: 'List all communities that supplied user is in.' })
+    @Get('/profile/communities/')
+    async communities(
         @Res() res: Response,
         @Request() req: any
     ): Promise<any> {

@@ -9,21 +9,21 @@ import {
     ManyToMany
 } from 'typeorm';
 
-import { MoviesRO } from './movies.ro';
+import { MedaiRO } from './media.ro';
 import { Community } from 'src/community/community.entity';
 
 @Entity()
-export class Movies {
+export class Media {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({
-        name: 'movie_id',
+        name: 'media_id',
         type: 'varchar',
         nullable: true,
         length: 255
     })
-    movie_id: string;
+    media_id: string;
 
 
     @Column({
@@ -57,17 +57,26 @@ export class Movies {
     })
     background: string;
 
+    @Column({
+        name: 'type',
+        type: 'varchar',
+        nullable: false,
+        length: 255
+    })
+    type: string;
 
-    toResponseObject(): MoviesRO {
-        const { id, movie_id, watched_on, added, rating, background } = this;
 
-        const responseObject: MoviesRO = {
+    toResponseObject(): MedaiRO {
+        const { id, media_id, watched_on, added, rating, background, type } = this;
+
+        const responseObject: MedaiRO = {
             id,
-            movie_id,
+            media_id,
             watched_on,
             added,
             rating,
-            background
+            background,
+            type
         };
 
         return responseObject;

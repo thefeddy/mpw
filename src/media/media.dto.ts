@@ -15,9 +15,8 @@ export class CreateMovieDTO {
     @ApiProperty()
     readonly community_id: number;
     @ApiProperty()
-    readonly movie_id: string;
-    @ApiProperty()
-    readonly background: string;
+    readonly movie_id: number;
+
 }
 
 export class WatchedMovieDTO {

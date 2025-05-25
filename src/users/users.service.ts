@@ -40,6 +40,7 @@ export class UsersService {
             relations: ['communities']
         });
     }
+    
 
     async findUser(id: number): Promise<any> {
         return await this.userRepository.findOne({
