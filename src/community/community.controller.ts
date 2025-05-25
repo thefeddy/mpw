@@ -80,7 +80,7 @@ export class CommunityController {
         message.isOwner = isOwner;
 
         for (const media of message.media) {
-            const cacheKey = `${media.type}-${media.movie_id}`;
+            const cacheKey = `${media.type}-${media.media_id}`;
             let data = await this.cacheService.get<{ name: string }>(cacheKey);
             if (!data) {
                 const { data: fetchedData } = await firstValueFrom(
