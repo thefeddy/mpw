@@ -105,9 +105,16 @@ export class MediaController {
                 this.http.get(`${process.env.TMDB_BASE_URL}tv/${id}/season/${season}?api_key=${process.env.TMDB_API_KEY}&language=en-US&append_to_response=watch%2Fproviders,videos,images,trailers`)
             );
 
-            console.log(fetchedData)
-            await this.cacheService.set(cacheKey, fetchedData);
-            const details = { ...fetchedData };
+            const totalEpisodes = fetchedData?.episodes?.length || 1;
+            const randomEpisode = Math.floor(Math.random() * totalEpisodes) + 1;
+
+            const { data: imageData } = await firstValueFrom(
+                this.http.get(`${process.env.TMDB_BASE_URL}tv/${id}/season/${season}/episode/${randomEpisode}/images?api_key=${process.env.TMDB_API_KEY}`)
+            );
+
+            console.log(imageData);
+            const details = { ...fetchedData, ...imageData };
+            await this.cacheService.set(cacheKey, details);
 
             res.status(HttpStatus.OK).json({ details });
         } catch (error) {
