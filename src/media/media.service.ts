@@ -75,7 +75,7 @@ export class MediaService {
             throw new HttpException(MessagesConstants.COMMUNITY_USER_NOT_IN_COMMUNITY_MESSAGE, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        const isMovieAlreadyAdded = foundCommunity.media?.some((m) => m.movie_id === media_id);
+        const isMovieAlreadyAdded = foundCommunity.media?.some((m) => m.media_id === media_id);
 
         if (isMovieAlreadyAdded) {
             throw new HttpException(MessagesConstants.COMMUNITY_MOVIE_ALREADY_ADDED_MESSAGE, HttpStatus.FOUND);

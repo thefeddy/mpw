@@ -58,7 +58,6 @@ export class CommunityController {
     @Post('create')
     async createCommunity(@Body() communityPayload: CreateCommunityDTO, @Req() req: any, @Res() res: Response): Promise<any> {
         let message = await this.communityService.create(req?.user.id, communityPayload);
-
         res.status(message.status).json(message);
     }
 
@@ -80,19 +79,14 @@ export class CommunityController {
         message.isOwner = isOwner;
 
         for (const media of message.media) {
-            const cacheKey = `${media.type}-${media.movie_id}`;
+            const cacheKey = `${media.type}-${media.media_id}`;
             let data = await this.cacheService.get<{ name: string }>(cacheKey);
             if (!data) {
-
                 const { data: fetchedData } = await firstValueFrom(
                     this.http.get(`${process.env.TMDB_BASE_URL}${media.type}/${media.media_id}?api_key=${process.env.TMDB_API_KEY}&language=en-US&append_to_response=videos,images,credits,trailers`)
                 );
-
-
                 await this.cacheService.set(cacheKey, fetchedData);
-
                 data = fetchedData;
-
             }
 
             media.details = data;
